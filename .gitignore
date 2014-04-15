@@ -1,3 +1,5 @@
+#tags
+tags
 # Object files
 *.o
 *.ko
@@ -16,3 +18,12 @@
 *.exe
 *.out
 *.app
+
+# Vim tmp file
+*.swp
+
+# Self
+.gitignore
+
+#learn
+learn

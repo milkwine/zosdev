@@ -1,15 +1,15 @@
 #include "common.h"
 #include "monitor.h"
+#include "descriptor.h"
+#include "timer.h"
 
 void main(){
 
-	m_clear();
-	char ch = 'a';
-	while(1){
-
-		m_putc( ch, SUC );
-		ch = ch >= 'z' ? 'a' : ch + 1;
-
-	}
-
+    ini_descriptor();
+    m_clear();
+    asm volatile("int $0x3");
+    asm volatile("int $0x4");
+    asm volatile("int $0x22");
+    asm volatile("sti");
+    ini_timer(1);    
 }

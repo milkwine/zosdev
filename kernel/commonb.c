@@ -1,4 +1,12 @@
 #include "common.h"
+#include "monitor.h"
+
+void memset( u8* dst, u8 val, u32 len){
+    while( len-- ){
+        *dst = val;
+        dst++;
+    }
+}
 
 void itoa(char* buf,int buf_len,int num){
   if(buf_len<11)return;

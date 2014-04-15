@@ -7,11 +7,11 @@ u8 cur_y = 0;
 
 static void delay(){
 
-	int i,j;
-	for (i = 0; i < 1000; i++) {
-		for (j = 0; j < 100; j++) {
-		}
-	}
+    int i,j;
+    for (i = 0; i < 1000; i++) {
+        for (j = 0; j < 100; j++) {
+        }
+    }
 
 }
 
@@ -49,15 +49,13 @@ static void scroll(){
 
 void m_clear(){
 
-	int i;
-	for (i = 0; i < 80*25; i++) {
+    int i;
+    for (i = 0; i < 80*25; i++) {
+        video[i] = (u16) 0x20;
+    }
 
-		video[i] = (u16) 0x20;
-
-	}
-
-	cur_x = 0;
-	cur_y = 0;
+    cur_x = 0;
+    cur_y = 0;
 
 }
 
@@ -83,7 +81,7 @@ void m_putc(char ch, u16 color){
 
 	move_cursor();
 	scroll();
-	delay();
+	//delay();
 
 }
 
