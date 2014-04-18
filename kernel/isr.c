@@ -13,6 +13,8 @@ void isr_handler( registers_t regs ){
     m_write("isr handler\n", INFO);
     m_write("int no:", INFO);
     m_putint(regs.int_no);
+    m_write("error no:", INFO);
+    m_putint(regs.err_code);
     m_write("\n", INFO);
 
     if( int_handler[regs.int_no] !=0 ){

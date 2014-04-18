@@ -1,3 +1,5 @@
+#ifndef ISR_HEAD
+#define ISR_HEAD 1
 #include "common.h"
 
 #define IRQ0 32
@@ -29,4 +31,4 @@ typedef struct registers
 typedef void (*isr_t)(registers_t);
 void register_interrupt_handler(u8 n, isr_t handler);
 
-
+#endif
