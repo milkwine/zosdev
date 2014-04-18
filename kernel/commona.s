@@ -2,6 +2,7 @@
 
 global out_byte
 global in_byte
+global ibreak
 ;----------------------------------
 ;void out_byte(u16 port,u8 byte)
 ;cdcel
@@ -28,3 +29,6 @@ in_byte:
 	nop
 	ret
 
+ibreak:
+    xchg bx,bx
+    ret
