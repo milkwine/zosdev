@@ -13,12 +13,12 @@ void kernel_main(multiboot_head_t *mboot_ptr){
     m_clear();
 
     
-    //show_mem(mboot_ptr);
+    show_mem(mboot_ptr);
     //asm volatile("int $0x22");
-    asm volatile("sti");
+    //asm volatile("sti");
     //ini_timer(1);    
-    ini_paging();
-    m_write("ini paging kernel over\n", SUC);
+    //ini_paging();
+    //m_write("ini paging kernel over\n", SUC);
     //ibreak();
     //u32 *ptr = (u32*)0xA0000000;
     //u32 do_page_fault = *ptr;

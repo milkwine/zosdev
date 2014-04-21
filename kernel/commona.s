@@ -5,10 +5,7 @@ global in_byte
 global ibreak
 ;----------------------------------
 ;void out_byte(u16 port,u8 byte)
-;cdcel
-;先压入byte，再压入port
-;call后压入下一条指令的地址
-;32位压入立即数都按双字算
+;cdcel ;push 'byte' first
 ;----------------------------------
 out_byte:
 	mov al,[esp+4+4]
@@ -29,6 +26,10 @@ in_byte:
 	nop
 	ret
 
+;----------------------------------
+;void ibreak()
+;bochs magic break
+;----------------------------------
 ibreak:
     xchg bx,bx
     ret
