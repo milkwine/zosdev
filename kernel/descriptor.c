@@ -1,19 +1,24 @@
 #include "common.h"
 #include "descriptor.h"
 
-GDT gdt_entries[5];
+GDT gdt_entries[6];
 GDT_PTR gdt_ptr;
 
 IDT idt_entries[256];
 IDT_PTR idt_ptr;
 
+TSS tss;
+
 static void ini_gdt();
 static void ini_idt();
 static void ini_gdt_des(u8,u32,u32,u8,u8);
 static void ini_idt_des(u8,u32,u16,u8);
+static void write_tss(int, u16, u32);
 
 extern void gdt_flush( u32 );
 extern void idt_flush( u32 );
+extern void tss_flush( );
+extern u32 stack_top;
 
 void ini_descriptor(){
   
@@ -25,15 +30,17 @@ void ini_descriptor(){
 static void ini_gdt(){
 
     gdt_ptr.base = (u32)gdt_entries;
-    gdt_ptr.limit = sizeof( GDT ) * 5 - 1;
+    gdt_ptr.limit = sizeof( GDT ) * 6 - 1;
 
     ini_gdt_des(0, 0, 0, 0, 0);                // Null segment
     ini_gdt_des(1, 0, 0xFFFFFFFF, 0x9A, 0xCF); // Code segment
     ini_gdt_des(2, 0, 0xFFFFFFFF, 0x92, 0xCF); // Data segment
     ini_gdt_des(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); // User mode code segment
     ini_gdt_des(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User mode data segment
+    write_tss(5, 0x10, (u32)&stack_top);
 
     gdt_flush( (u32)&gdt_ptr );
+    tss_flush();
 
 }
 
@@ -132,6 +139,18 @@ static void ini_idt_des(u8 num, u32 base, u16 sel, u8 flags)
     idt_entries[num].always0 = 0;
     // We must uncomment the OR below when we get to using user-mode.
     // It sets the interrupt gate's privilege level to 3.
-    idt_entries[num].flags   = flags /* | 0x60 */;
+    idt_entries[num].flags   = flags  | 0x60 ;
 }
 
+static void write_tss(int num, u16 ss0, u32 esp0){
+
+    u32 base = (u32)&tss;
+    u32 limit = base + sizeof(TSS);
+    ini_gdt_des( num, base, limit, 0xE9, 0x00 );
+    
+    memset((u8*)&tss, 0, sizeof(TSS));
+
+    tss.ss0 = ss0;
+    tss.esp0 = esp0;
+
+}

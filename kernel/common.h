@@ -1,5 +1,6 @@
 #ifndef COMMON_H
 #define COMMON_H 1
+#define ENTRY_POINT 0x100000
 typedef unsigned int u32;
 typedef unsigned short u16;
 typedef unsigned char u8;

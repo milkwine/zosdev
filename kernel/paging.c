@@ -1,10 +1,12 @@
 #include "paging.h"
 #include "isr.h"
 #include "monitor.h"
-#include "kheap.h"
+#include "buddy.h"
 
 extern u32 k_dir_addr;
 extern u32 end;
+
+static void flush_page();
 
 void page_fault(registers_t regs)
 {
@@ -42,28 +44,40 @@ void ini_kernel_page( u32 vd, u32 pd, page_directory* dir){
 
     u32 dir_index  = vd >> 22;
     u32 table_index  = ( vd & 0x3FFFFF ) >> 12;
-    m_write("ini kernel page.(map:",INFO);
-    m_putint(vd);
-    m_write(" dir_index:",INFO);
-    m_putint(dir_index);
-    m_write(" table_index:",INFO);
-    m_putint(table_index);
+    //m_write("ini kernel page.(map:",INFO);
+    //m_putint(vd);
+    //m_write(" dir_index:",INFO);
+    //m_putint(dir_index);
+    //m_write(" table_index:",INFO);
+    //m_putint(table_index);
     p_dir_entry* dir_entry = &dir->tables[dir_index];
 
     if ( * (u32*)dir_entry == 0 ){
         dir_entry->user = 0;
         dir_entry->rw = 1;
         dir_entry->present = 1;
-        dir_entry->frame = malloc_f() >> 12;
+        int addr = k_malloc(1);
+        if(addr == -1){
+            //TODO  no more free memory
+        }
+        dir_entry->frame = ((u32)addr) >> 12;
+        memset((u8*)addr, 0, 0x1000 );
+
+        m_write("malloc frame:",INFO);
+        m_putint((u32)addr);
+        m_write("\n",INFO);
+        m_write("frame:",INFO);
+        m_putint(dir_entry->frame);
+        m_write("\n",INFO);
 
     }
     page_table* table = (page_table*) ( (u32)dir_entry->frame << 12 );
-    m_write(" table_addr:",INFO);
-    m_putint((u32)table);
+    //m_write(" table_addr:",INFO);
+    //m_putint((u32)table);
     p_table_entry* page = &table->pages[table_index];
-    m_write(" page_addr:",INFO);
-    m_putint((u32)page);
-    m_write(")\n",INFO);
+    //m_write(" page_addr:",INFO);
+    //m_putint((u32)page);
+    //m_write(")\n",INFO);
 
     page->frame = (u32)pd >>12 ;
     page->present=1;
@@ -87,11 +101,19 @@ void ini_paging(){
         begin+=0x1000;
 
     }
+
+    //ini dir self
+    k_dir->tables[1023].frame = (u32)k_dir >> 12;
+    k_dir->tables[1023].present=1;
+    k_dir->tables[1023].rw=1;
+    k_dir->tables[1023].user=0;
+
+
+
     m_write("ini pages:",INFO);
     m_putint(begin / 0x1000);
     m_write("\n",INFO);
 
-    ibreak();
 
     register_interrupt_handler(14, page_fault);
 
@@ -102,12 +124,69 @@ void ini_paging(){
     m_putint((u32)&end);
     m_write("\n",INFO);
 
-    ibreak();
+    listmem();
+    flush_page();
+
+}
+static void flush_page(){
 
     asm volatile ("mov %0, %%cr3":: "r"((u32)&k_dir_addr));
     u32 cr0;
     asm volatile ("mov %%cr0, %0": "=r"(cr0));
     cr0 |= 0x80000000; // Enable paging!
     asm volatile ("mov %0, %%cr0":: "r"(cr0));
+}
+void map_page( u32 vd, u32 pd ){
 
+    page_directory* dir = (page_directory*)(0xFFFFF000);
+ 
+    u32 dir_index  = vd >> 22;
+    u32 table_index  = ( vd & 0x3FFFFF ) >> 12;
+    
+    p_dir_entry* dir_entry = &dir->tables[dir_index];
+
+    if ( * (u32*)dir_entry == 0 ){
+        dir_entry->user = 0;
+        dir_entry->rw = 1;
+        dir_entry->present = 1;
+        int addr = k_malloc(1);
+        if(addr == -1){
+            //TODO  no more free memory
+        }
+        dir_entry->frame = ((u32)addr) >> 12;
+
+        //apply the new table
+        flush_page();
+
+        //clear the new table
+        memset((u8*)(0xFFC00000 +  0x1000 * dir_index), 0, 0x1000);
+    }
+
+    page_table* table = (page_table*)(0xFFC00000 +  0x1000 * dir_index);
+    
+    p_table_entry* page = &table->pages[table_index];
+
+    page->frame = (u32)pd >>12 ;
+    page->present=1;
+    page->rw=1;
+    page->user=0;
+    flush_page();
+}
+void clear_map(u32 vd){
+
+    page_directory* dir = (page_directory*)(0xFFFFF000);
+ 
+    u32 dir_index  = vd >> 22;
+    u32 table_index  = ( vd & 0x3FFFFF ) >> 12;
+    
+    p_dir_entry* dir_entry = &dir->tables[dir_index];
+    if ( * (u32*)dir_entry != 0 ){
+
+        page_table* table = (page_table*)(0xFFC00000 +  0x1000 * dir_index);
+        p_table_entry* page = &table->pages[table_index];
+        if(*(u32*)page != 0)
+            memset((u8*)page, 0, sizeof(p_table_entry));
+
+    }
+    flush_page();
 }

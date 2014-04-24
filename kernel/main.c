@@ -5,23 +5,31 @@
 #include "multiboot.h"
 #include "paging.h"
 #include "common.h"
-#include "kheap.h"
+#include "buddy.h"
 
+void show_mem(multiboot_head_t *mboot_ptr);
 void kernel_main(multiboot_head_t *mboot_ptr){
 
     ini_descriptor();
     m_clear();
-
-    
     show_mem(mboot_ptr);
+    inibuddy(mboot_ptr);
+    listmem();
     //asm volatile("int $0x22");
     //asm volatile("sti");
     //ini_timer(1);    
-    //ini_paging();
-    //m_write("ini paging kernel over\n", SUC);
-    //ibreak();
-    //u32 *ptr = (u32*)0xA0000000;
-    //u32 do_page_fault = *ptr;
+    ini_paging();
+    m_write("ini paging kernel over\n", SUC);
+    u32 paddr = k_malloc(1);
+    map_page( 0x30000000, paddr );
+
+    u32 paddr1 = k_malloc(1);
+    map_page( 0x40000000, paddr1 );
+    ibreak();
+    clear_map( 0x30000000 );
+    u32 *ptr = (u32*)0x40000000;
+    u32 do_page_fault = *ptr;
+
 }
 void show_mem(multiboot_head_t *mboot_ptr){
 

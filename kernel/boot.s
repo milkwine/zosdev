@@ -20,6 +20,7 @@ align 4
 ; cause massive harm. Instead, we'll provide our own stack. We will allocate
 ; room for a small temporary stack by creating a symbol at the bottom of it,
 ; then allocating 16384 bytes for it, and finally creating a symbol at the top.
+global stack_top
 section .bootstrap_stack
 align 4
 stack_bottom:
@@ -60,7 +61,6 @@ _start:
 	; assembly file, so we'll create a kernel.c file in a moment. In that file,
 	; we'll create a C entry point called kernel_main and call it here.
 	extern kernel_main
-	xchg bx,bx
 	call kernel_main
  
 	; In case the function returns, we'll want to put the computer into an
@@ -68,10 +68,31 @@ _start:
 	; to disable interrupts, the halt instruction ('hlt') to stop the CPU until
 	; the next interrupt arrives, and jumping to the halt instruction if it ever
 	; continues execution, just to be safe.
+
 	cli
+    ;=============ring 3 test
+    ;xchg bx,bx
+    ;mov ax, 0x23
+    ;mov ds, ax
+    ;mov es, ax
+    ;mov fs, ax
+    ;mov gs, ax
+
+    ;push 0x23
+    ;push esp
+    ;pushf
+    ;push 0x1B
+    ;push stop
+
+    ;iret
 .hang:
 	hlt
 	jmp .hang
+
+;stop:
+;    xchg bx,bx
+;    int 3
+;    jmp $
 
 [section .pagedir]
 global k_dir_addr

@@ -1,18 +1,19 @@
+*.img
+
+#bin
+kernel/kernel
+
+*.bak
+
+#log
+run/bochsout.txt
+
 #tags
 tags
+
 # Object files
 *.o
-*.ko
 
-# Libraries
-*.lib
-*.a
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
 
 # Executables
 *.exe

@@ -38,6 +38,38 @@ typedef struct _IDT_PTR {
 
 }__attribute__((packed)) IDT_PTR;
 
+struct tss_entry_struct
+{
+   u32 prev_tss;   // The previous TSS - if we used hardware task switching this would form a linked list.
+   u32 esp0;       // The stack pointer to load when we change to kernel mode.
+   u32 ss0;        // The stack segment to load when we change to kernel mode.
+   u32 esp1;       // everything below here is unusued now.. 
+   u32 ss1;
+   u32 esp2;
+   u32 ss2;
+   u32 cr3;
+   u32 eip;
+   u32 eflags;
+   u32 eax;
+   u32 ecx;
+   u32 edx;
+   u32 ebx;
+   u32 esp;
+   u32 ebp;
+   u32 esi;
+   u32 edi;
+   u32 es;         
+   u32 cs;        
+   u32 ss;        
+   u32 ds;        
+   u32 fs;       
+   u32 gs;         
+   u32 ldt;      
+   u16 trap;
+   u16 iomap_base;
+}__attribute__((packed)) ;
+ 
+typedef struct tss_entry_struct TSS;
 
 // These extern directives let us access the addresses of our ASM ISR handlers.
 extern void isr0 ();

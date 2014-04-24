@@ -23,6 +23,7 @@ void isr_handler( registers_t regs ){
     }
     else
         m_write("handler have not ini\n", INFO);
+
 }
 
 void irq_handler( registers_t regs ){

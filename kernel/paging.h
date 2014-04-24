@@ -54,6 +54,7 @@ page_table* ini_page_table();
 
 //after set up paging
 void map_page( u32 vd, u32 pd );
+void clear_map( u32 vd );
 
 
 
