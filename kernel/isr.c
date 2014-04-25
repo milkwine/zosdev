@@ -33,16 +33,17 @@ void irq_handler( registers_t regs ){
     //m_putint(regs.int_no);
     //m_write("\n", INFO);
 
-    if( regs.int_no > 40 )
-        out_byte(0xA0, 0x20);
-
-    out_byte(0x20, 0x20);
 
     
     if( int_handler[regs.int_no] !=0 ){
         isr_t handler = int_handler[regs.int_no];
         handler(&regs);
     }
+
+    if( regs.int_no > 40 )
+        out_byte(0xA0, 0x20);
+
+    out_byte(0x20, 0x20);
     //else
     //    m_write("handler have not ini\n", INFO);
 }

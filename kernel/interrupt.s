@@ -139,6 +139,7 @@ irq_common_stub:
     popa
     add esp, 8
 
+    xchg bx,bx
     iret
 
 

@@ -55,6 +55,12 @@ SECTIONS
         *(.ini)
     }
     ini_end = .;
+    test_begin = ALIGN(4K);
+	.test BLOCK(4K) :
+    {
+        *(.test)
+    }
+    test_end = .;
     mem_start = ALIGN(4K);
 
 }

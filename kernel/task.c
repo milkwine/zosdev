@@ -6,6 +6,9 @@
 extern u32 ini_begin;
 extern u32 ini_end;
 
+extern u32 test_begin;
+extern u32 test_end;
+
 static void showTask();
 Task ready[MAX_TASK];
 int run;
@@ -14,7 +17,8 @@ void iniTask(){
 
     memset( (u8*)ready, 0, sizeof(Task)*MAX_TASK );
     addTask( (u32)&ini_begin, (u32)&ini_end );
-    run = 0;
+    addTask( (u32)&test_begin, (u32)&test_end );
+    run = -1;
     showTask();
     m_write("ini task kernel over\n", SUC);
 }
@@ -25,13 +29,17 @@ void switchTask(registers_t* regs){
     //m_write("switch task\n",INFO);
     
     //unmap the task
-    if(ready[run].status == 2){
+    if(run!=-1 && ready[run].status == 2){
         Task* now = &ready[run];
+
+        now->eip = regs->eip;
+        now->esp = regs->useresp;
+
         for (i = 0; i < now->mlen; i++) {
             
             clear_map( now->mmap[i].vaddr );
         }
-        ready[run].status = 1;
+        now->status = 1;
     }
 
     //m_write("unmap done\n",INFO);
@@ -39,12 +47,25 @@ void switchTask(registers_t* regs){
     //pick up which to run
     //TODO schedual should be a interface
     //just find next ready task
+
     for (
         i = run == MAX_TASK-1 ? 0 : run+1 ;
-        i!=run || !ready[i].status==1 ;
+        i!=run ;
         i = i==MAX_TASK-1 ? 0 : i+1
-    );
+    ){
+        //m_write("check:",INFO);
+        //m_putint(i);
+        //m_write(" status:",INFO);
+        //m_putint(ready[i].status);
+        //m_write("\n",INFO);
+        //ibreak();
+        if( ready[i].status==1 )
+            break;
+    }
 
+    //m_write("pick:",INFO);
+    //m_putint(i);
+    //m_write("\n",INFO);
     //m_write("pick up done\n",INFO);
 
     run = i;
@@ -58,6 +79,8 @@ void switchTask(registers_t* regs){
     regs->cs = 0x1B;
     regs->useresp = next->esp;
     regs->eip = next->eip;
+
+    next->status = 2;
     
 
     //m_write("change regs done\n",INFO);
@@ -116,6 +139,9 @@ int addTask(u32 begin,u32 end){
         //to big to map
         return 0;
     }
+    m_write(" insert pos:", INFO);
+    m_putint(t_num);
+    m_write("\n", INFO);
     Task* t = &ready[t_num];
     memset((u8*)t, 0, sizeof(Task));
     u32 load = LOADPLACE;

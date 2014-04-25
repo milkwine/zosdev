@@ -23,9 +23,8 @@ void kernel_main(multiboot_head_t *mboot_ptr){
     ini_paging();
     m_write("ini paging kernel over\n", SUC);
     iniTask();
-    ibreak();
     asm volatile("sti");
-    ini_timer(1);    
+    ini_timer(1000);    
     //map_page( 0x30000000, (u32)&ini, 0 );
     //u32 stack_addr = k_malloc(1);
     //map_page( 0x40000000, stack_addr, 1 );
@@ -75,5 +74,9 @@ void show_mem(multiboot_head_t *mboot_ptr){
 }
 void syscall_handler(registers_t regs){
     u8* strs = (u8*)regs.eax;
-    m_write(strs,SUC);
+    //m_write("addr:",SUC);
+    //m_putint((u32)strs);
+    //m_write("\n",SUC);
+
+    m_write(strs,INFO);
 }
