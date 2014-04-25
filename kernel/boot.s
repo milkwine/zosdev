@@ -63,28 +63,10 @@ _start:
 	extern kernel_main
 	call kernel_main
  
-	; In case the function returns, we'll want to put the computer into an
-	; infinite loop. To do that, we use the clear interrupt ('cli') instruction
-	; to disable interrupts, the halt instruction ('hlt') to stop the CPU until
-	; the next interrupt arrives, and jumping to the halt instruction if it ever
-	; continues execution, just to be safe.
+    ; can not get here ever;
+    jmp $
 
-	cli
-    ;=============ring 3 test
-    ;xchg bx,bx
-    ;mov ax, 0x23
-    ;mov ds, ax
-    ;mov es, ax
-    ;mov fs, ax
-    ;mov gs, ax
-
-    ;push 0x23
-    ;push esp
-    ;pushf
-    ;push 0x1B
-    ;push stop
-
-    ;iret
+    cli
 .hang:
 	hlt
 	jmp .hang

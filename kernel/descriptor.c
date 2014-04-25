@@ -127,6 +127,8 @@ static void ini_idt(){
     ini_idt_des(46, (u32)irq14, 0x08, 0x8E);
     ini_idt_des(47, (u32)irq15, 0x08, 0x8E);
     
+    ini_idt_des(0x80, (u32)int_syscall, 0x08, 0x8E);
+
     idt_flush( (u32)&idt_ptr );
 }
 

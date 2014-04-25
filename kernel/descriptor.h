@@ -105,6 +105,9 @@ extern void isr29();
 extern void isr30();
 extern void isr31();
 
+
+extern void int_syscall();//syscall
+
 extern void irq0 (); 
 extern void irq1 (); 
 extern void irq2 (); 

@@ -66,6 +66,7 @@ ISR_NOERRCODE 29
 ISR_NOERRCODE 30
 ISR_NOERRCODE 31
 
+
 IRQ   0,    32                 
 IRQ   1,    33                 
 IRQ   2,    34                 
@@ -126,8 +127,39 @@ irq_common_stub:
     mov es, ax
     mov fs, ax
     mov gs, ax
-
+    
     call irq_handler
+
+    pop ebx
+    mov ds, bx
+    mov es, bx
+    mov fs, bx
+    mov gs, bx
+
+    popa
+    add esp, 8
+
+    iret
+
+
+extern syscall_handler
+global int_syscall
+int_syscall:
+
+    push 0x80
+    push eax
+
+    pusha
+    mov ax, ds
+    push eax
+
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    call syscall_handler
 
     pop ebx
     mov ds, bx

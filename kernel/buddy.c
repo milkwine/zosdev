@@ -145,14 +145,13 @@ int k_free(u32 begin){
 
 }
 
-extern u32 end;
+extern u32 mem_start;
 void inibuddy(multiboot_head_t *mboot_ptr){
 
     memset((u8*)mem, 0, sizeof(chunk)*MAX_PAGE);
     mem[0].pre = NULL_PAGE;
     mem[0].next = 1;
     mem[0].ini = 1;
-
 
     memory_map_t* mem;
     for(
@@ -164,7 +163,7 @@ void inibuddy(multiboot_head_t *mboot_ptr){
         if(mem->type == 1 && mem->base_addr_low >= ENTRY_POINT ){
 
             if(mem->base_addr_low == ENTRY_POINT)
-                addmem((u32)&end , mem->base_addr_low + mem->length_low);
+                addmem((u32)&mem_start , mem->base_addr_low + mem->length_low);
             else
                 addmem(mem->base_addr_low, mem->base_addr_low + mem->length_low);
         }

@@ -2,13 +2,15 @@
 #include "monitor.h"
 #include "timer.h"
 #include "isr.h"
+#include "task.h"
 
 u32 tick = 0;
-static void timer_callback(registers_t regs){
+static void timer_callback(registers_t* regs){
     m_write("tick:",INFO);
     m_putint(tick);
     m_write("\n",INFO);
     tick++;
+    switchTask(regs);
 }
 
 void ini_timer(u32 frequency){

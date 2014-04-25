@@ -28,7 +28,7 @@ typedef struct registers
 } registers_t;
 
 
-typedef void (*isr_t)(registers_t);
+typedef void (*isr_t)(registers_t*);
 void register_interrupt_handler(u8 n, isr_t handler);
 
 #endif

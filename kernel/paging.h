@@ -53,7 +53,7 @@ page_directory* ini_page_dir();
 page_table* ini_page_table();
 
 //after set up paging
-void map_page( u32 vd, u32 pd );
+void map_page( u32 vd, u32 pd, int rw );
 void clear_map( u32 vd );
 
 

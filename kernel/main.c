@@ -6,8 +6,12 @@
 #include "paging.h"
 #include "common.h"
 #include "buddy.h"
+#include "task.h"
+
 
 void show_mem(multiboot_head_t *mboot_ptr);
+void syscall_handler(registers_t regs);
+
 void kernel_main(multiboot_head_t *mboot_ptr){
 
     ini_descriptor();
@@ -15,20 +19,18 @@ void kernel_main(multiboot_head_t *mboot_ptr){
     show_mem(mboot_ptr);
     inibuddy(mboot_ptr);
     listmem();
-    //asm volatile("int $0x22");
-    //asm volatile("sti");
-    //ini_timer(1);    
+    //ibreak();
     ini_paging();
     m_write("ini paging kernel over\n", SUC);
-    u32 paddr = k_malloc(1);
-    map_page( 0x30000000, paddr );
-
-    u32 paddr1 = k_malloc(1);
-    map_page( 0x40000000, paddr1 );
+    iniTask();
     ibreak();
-    clear_map( 0x30000000 );
-    u32 *ptr = (u32*)0x40000000;
-    u32 do_page_fault = *ptr;
+    asm volatile("sti");
+    ini_timer(1);    
+    //map_page( 0x30000000, (u32)&ini, 0 );
+    //u32 stack_addr = k_malloc(1);
+    //map_page( 0x40000000, stack_addr, 1 );
+
+    //clear_map( 0x30000000 );
 
 }
 void show_mem(multiboot_head_t *mboot_ptr){
@@ -70,4 +72,8 @@ void show_mem(multiboot_head_t *mboot_ptr){
       //m_write("\n",INFO);
 
     }
+}
+void syscall_handler(registers_t regs){
+    u8* strs = (u8*)regs.eax;
+    m_write(strs,SUC);
 }

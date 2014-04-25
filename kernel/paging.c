@@ -4,11 +4,11 @@
 #include "buddy.h"
 
 extern u32 k_dir_addr;
-extern u32 end;
+extern u32 kernel_end;
 
 static void flush_page();
 
-void page_fault(registers_t regs)
+void page_fault(registers_t* regs)
 {
     // A page fault has occurred.
     // The faulting address is stored in the CR2 register.
@@ -16,11 +16,11 @@ void page_fault(registers_t regs)
     asm volatile ("mov %%cr2, %0" : "=r" (faulting_address));
     
     // The error code gives us details of what happened.
-    int present   = !(regs.err_code & 0x1); // Page not present
-    int rw = regs.err_code & 0x2;           // Write operation?
-    int us = regs.err_code & 0x4;           // Processor was in user-mode?
-    int reserved = regs.err_code & 0x8;     // Overwritten CPU-reserved bits of page entry?
-    int id = regs.err_code & 0x10;          // Caused by an instruction fetch?
+    int present   = !(regs->err_code & 0x1); // Page not present
+    int rw = regs->err_code & 0x2;           // Write operation?
+    int us = regs->err_code & 0x4;           // Processor was in user-mode?
+    int reserved = regs->err_code & 0x8;     // Overwritten CPU-reserved bits of page entry?
+    int id = regs->err_code & 0x10;          // Caused by an instruction fetch?
 
     // Output an error message.
     m_write("Page fault! ( ",INFO);
@@ -31,7 +31,7 @@ void page_fault(registers_t regs)
     m_write(") at ",INFO);
     m_putint(faulting_address);
     m_write(" - EIP: ",INFO);
-    m_putint(regs.eip);
+    m_putint(regs->eip);
     m_write("\n",INFO);
 
 }
@@ -94,7 +94,7 @@ void ini_paging(){
 
 
     u32 begin = 0;
-    u32 end_ = (u32)&end;
+    u32 end_ = (u32)&kernel_end;
     while( begin < end_ ){
         
         ini_kernel_page( begin, begin, k_dir);
@@ -121,7 +121,7 @@ void ini_paging(){
     m_putint((u32)&k_dir_addr);
 
     m_write("  end:",INFO);
-    m_putint((u32)&end);
+    m_putint((u32)&kernel_end);
     m_write("\n",INFO);
 
     listmem();
@@ -136,7 +136,7 @@ static void flush_page(){
     cr0 |= 0x80000000; // Enable paging!
     asm volatile ("mov %0, %%cr0":: "r"(cr0));
 }
-void map_page( u32 vd, u32 pd ){
+void map_page( u32 vd, u32 pd ,int rw){
 
     page_directory* dir = (page_directory*)(0xFFFFF000);
  
@@ -146,7 +146,7 @@ void map_page( u32 vd, u32 pd ){
     p_dir_entry* dir_entry = &dir->tables[dir_index];
 
     if ( * (u32*)dir_entry == 0 ){
-        dir_entry->user = 0;
+        dir_entry->user = 1;
         dir_entry->rw = 1;
         dir_entry->present = 1;
         int addr = k_malloc(1);
@@ -168,8 +168,8 @@ void map_page( u32 vd, u32 pd ){
 
     page->frame = (u32)pd >>12 ;
     page->present=1;
-    page->rw=1;
-    page->user=0;
+    page->rw = rw;
+    page->user=1;
     flush_page();
 }
 void clear_map(u32 vd){

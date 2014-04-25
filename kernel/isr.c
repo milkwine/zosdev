@@ -19,7 +19,7 @@ void isr_handler( registers_t regs ){
 
     if( int_handler[regs.int_no] !=0 ){
         isr_t handler = int_handler[regs.int_no];
-        handler(regs);
+        handler(&regs);
     }
     else
         m_write("handler have not ini\n", INFO);
@@ -41,7 +41,7 @@ void irq_handler( registers_t regs ){
     
     if( int_handler[regs.int_no] !=0 ){
         isr_t handler = int_handler[regs.int_no];
-        handler(regs);
+        handler(&regs);
     }
     //else
     //    m_write("handler have not ini\n", INFO);
