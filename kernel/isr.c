@@ -7,15 +7,18 @@ isr_t int_handler[256];
 void register_interrupt_handler(u8 n, isr_t handler){
 
     int_handler[n] = handler;
+    //m_write("register:",INFO);
+    //m_putint(n);
+    //m_write("\n",INFO);
 }
 
 void isr_handler( registers_t regs ){
-    m_write("isr handler\n", INFO);
-    m_write("int no:", INFO);
-    m_putint(regs.int_no);
-    m_write("error no:", INFO);
-    m_putint(regs.err_code);
-    m_write("\n", INFO);
+    //m_write("isr handler\n", INFO);
+    //m_write("int no:", INFO);
+    //m_putint(regs.int_no);
+    //m_write("error no:", INFO);
+    //m_putint(regs.err_code);
+    //m_write("\n", INFO);
 
     if( int_handler[regs.int_no] !=0 ){
         isr_t handler = int_handler[regs.int_no];

@@ -31,15 +31,18 @@ static void scroll(){
 
         int i;
         for (i = 0*80; i < 24*80; i++)
-        {   
-            video[i] = video[i+80];
+        {     //0~39 40~78
+              //80~119 120~159
+              if((i/40)%2==0)
+              video[i] = video[i+80];
         }   
 
         // The last line should now be blank. Do this by writing
         // 80 spaces to it.
         for (i = 24*80; i < 25*80; i++)
         {   
-            video[i] = BLANK;
+            if((i/40)%2==0)
+              video[i] = BLANK;
         }   
         // The cursor should now be on the last line.
         cur_y = 24;
@@ -51,7 +54,7 @@ void m_clear(){
 
     int i;
     for (i = 0; i < 80*25; i++) {
-        video[i] = (u16) 0x20;
+        video[i] = (u16) 0x20|15<<8;
     }
 
     cur_x = 0;
@@ -66,7 +69,7 @@ void m_putc(char ch, u16 color){
 		cur_x = 0;
 		cur_y ++;
 
-	}else{
+	}else if( ch != 0 ){
 
 		u16* location = video + (cur_y * 80 + cur_x);
 		*location = color | ch ;
@@ -74,7 +77,7 @@ void m_putc(char ch, u16 color){
 
 	}
 
-	if(cur_x >= 80){
+	if(cur_x >= 40){
 		cur_y++;
 		cur_x = 0;
 	}
@@ -97,9 +100,40 @@ void m_write(char* str, u16 color){
 }
 
 void m_putint( u32 num ){
+    char buf[11];
+    itoia(buf, 11, num);
+    m_write( buf, SUC );
+}
+void m_puthex( u32 num ){
 
 	char buf[11];
-	itoa( buf, 11, num );
+	itoha( buf, 11, num );
 	m_write( buf, SUC );
+}
+
+void m_printf(const char* format,...){
+    u32 addr = (u32)&format;
+    addr += sizeof(char*);
+
+    while(*format){
+
+        if(*format == '%'){
+            format++;
+            if(*format == 'x'){
+                m_puthex(*(u32*)addr);
+                addr+=sizeof(int);
+                format++;
+                continue;
+            }else if(*format == 'd'){
+                m_putint(*(u32*)addr);
+                addr+=sizeof(int);
+                format++;
+                continue;
+            }
+            format--;
+        }
+        m_putc(*format,INFO);
+        format++;
+    }
 
 }

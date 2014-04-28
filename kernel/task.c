@@ -2,6 +2,7 @@
 #include "paging.h"
 #include "buddy.h"
 #include "monitor.h"
+#include "descriptor.h"
 
 extern u32 ini_begin;
 extern u32 ini_end;
@@ -79,7 +80,12 @@ void switchTask(registers_t* regs){
     regs->cs = 0x1B;
     regs->useresp = next->esp;
     regs->eip = next->eip;
+    
+    //m_write("kernel stack:",INFO);
+    //m_putint(next->k_esp);
+    //m_write("\n",INFO);
 
+    set_kernel_stack(next->k_esp);
     next->status = 2;
     
 
@@ -164,9 +170,22 @@ int addTask(u32 begin,u32 end){
     t->mmap[ t->mlen ].rw = 1;
     t->mmap[ t->mlen++ ].paddr = stack;
 
+    //malloc kernel stack used when trap into ring0
+    u32 k_stack = k_malloc(1);
+    if(k_stack == -1){
+        //panic
+    }
+    
+    //map kernel_stack
+    t->mmap[ t->mlen ].vaddr = KERNELSTACK;
+    t->mmap[ t->mlen ].rw = 0;
+    t->mmap[ t->mlen++ ].paddr = k_stack;
+
     t->eip = LOADPLACE;
     t->esp = LOADSTACK + 0x1000;    //top of the stack(page)
+    t->k_esp = KERNELSTACK + 0x1000;
     t->status = 1;
+
     return 1;
     
 }

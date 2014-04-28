@@ -26,6 +26,9 @@ void ini_descriptor(){
   ini_idt();
 
 }
+void set_kernel_stack(u32 esp){
+    tss.esp0 = esp;
+}
 
 static void ini_gdt(){
 
@@ -73,8 +76,8 @@ static void ini_idt(){
     out_byte(0xA1, 0x01);
 
     //mask open all interrupt request
-    out_byte(0x21, 0x0);
-    out_byte(0xA1, 0x0);
+    out_byte(0x21, 0xFE);
+    out_byte(0xA1, 0xFF);
 
     memset( (u8*)idt_entries, 0, sizeof(IDT)*256 );
     ini_idt_des( 0, (u32)isr0 , 0x08, 0x8E);

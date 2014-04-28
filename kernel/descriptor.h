@@ -2,6 +2,7 @@
 #define DESCRIPTOR_H 1
 
 void ini_descriptor();
+void set_kernel_stack(u32);
 
 typedef struct _GDT {        // 8 bytes
 

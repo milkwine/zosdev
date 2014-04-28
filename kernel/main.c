@@ -16,20 +16,18 @@ void kernel_main(multiboot_head_t *mboot_ptr){
 
     ini_descriptor();
     m_clear();
-    show_mem(mboot_ptr);
-    inibuddy(mboot_ptr);
-    listmem();
-    //ibreak();
-    ini_paging();
+    
+    //show_mem(mboot_ptr);
+    //inibuddy(mboot_ptr);
+    //listmem();
+    //ini_paging();
+    m_printf("testahha:%d\n",1234);
+    m_printf("testahha:%x\n",1234);
     m_write("ini paging kernel over\n", SUC);
-    iniTask();
-    asm volatile("sti");
-    ini_timer(1000);    
-    //map_page( 0x30000000, (u32)&ini, 0 );
-    //u32 stack_addr = k_malloc(1);
-    //map_page( 0x40000000, stack_addr, 1 );
-
-    //clear_map( 0x30000000 );
+    //iniTask();
+    //ini_timer(1000);    
+    //ibreak();
+    //asm volatile("sti");
 
 }
 void show_mem(multiboot_head_t *mboot_ptr){

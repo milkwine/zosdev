@@ -8,6 +8,7 @@
 %macro ISR_NOERRCODE 1
   global isr%1
   isr%1:
+    xchg bx,bx
     cli                         ; Disable interrupts firstly.
     push byte 0                 ; Push a dummy error code.
     push byte %1                ; Push the interrupt number.
@@ -19,6 +20,7 @@
 %macro ISR_ERRCODE 1
   global isr%1
   isr%1:
+    xchg bx,bx
     cli                         ; Disable interrupts.
     push byte %1                ; Push the interrupt number
     jmp isr_common_stub
@@ -27,11 +29,14 @@
 %macro IRQ 2
   global irq%1
   irq%1:
+    xchg bx,bx
     cli
     push byte 0
     push byte %2
     jmp irq_common_stub
 %endmacro
+
+
 
 ISR_NOERRCODE 0
 ISR_NOERRCODE 1
@@ -67,7 +72,7 @@ ISR_NOERRCODE 30
 ISR_NOERRCODE 31
 
 
-IRQ   0,    32                 
+;IRQ   0,    32                 
 IRQ   1,    33                 
 IRQ   2,    34                 
 IRQ   3,    35                 
@@ -84,6 +89,53 @@ IRQ  13,    45
 IRQ  14,    46
 IRQ  15,    47
  
+
+global irq0
+extern stack_top
+irq0:
+    xchg bx,bx
+    cli
+
+    push 0
+    push 32
+
+    pusha
+    mov ax, ds
+    push eax
+
+    ;copy stack
+    mov ebp,esp
+    mov esp,stack_top
+    
+    mov edi,4*15
+.copyloop:
+    mov eax,[ebp+edi]
+    push eax 
+    sub edi,4
+    cmp edi,-4
+    jnz .copyloop
+
+
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    
+    call irq_handler
+
+    pop ebx
+    mov ds, bx
+    mov es, bx
+    mov fs, bx
+    mov gs, bx
+
+    popa
+    add esp, 8
+
+    xchg bx,bx
+    iret
+
 ; In isr.c
 extern isr_handler
 
@@ -112,13 +164,13 @@ isr_common_stub:
 
     popa                     ; Pops edi,esi,ebp...
     add esp, 8     ; Cleans up the pushed error code and pushed ISR number
+    xchg bx,bx
     iret           ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
 
 
 extern irq_handler
 
 irq_common_stub:
-
     pusha
     mov ax, ds
     push eax
@@ -171,4 +223,5 @@ int_syscall:
     popa
     add esp, 8
 
+    xchg bx,bx
     iret
