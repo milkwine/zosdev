@@ -4,17 +4,10 @@
 u16* video = (u16*) 0xB8000;
 u8 cur_x = 0;
 u8 cur_y = 0;
-
-static void delay(){
-
-    int i,j;
-    for (i = 0; i < 1000; i++) {
-        for (j = 0; j < 100; j++) {
-        }
-    }
-
+u8 full_screen = 1;
+void m_split(){
+    full_screen = 0;
 }
-
 static void move_cursor(){
     // The screen is 80 characters wide...
     u16 cursorLocation = cur_y * 80 + cur_x;
@@ -33,7 +26,7 @@ static void scroll(){
         for (i = 0*80; i < 24*80; i++)
         {     //0~39 40~78
               //80~119 120~159
-              if((i/40)%2==0)
+              if((i/40)%2==0 || full_screen)
               video[i] = video[i+80];
         }   
 
@@ -41,7 +34,7 @@ static void scroll(){
         // 80 spaces to it.
         for (i = 24*80; i < 25*80; i++)
         {   
-            if((i/40)%2==0)
+            if((i/40)%2==0 || full_screen)
               video[i] = BLANK;
         }   
         // The cursor should now be on the last line.
@@ -62,7 +55,7 @@ void m_clear(){
 
 }
 
-void m_putc(char ch, u16 color){
+static void m_putc(char ch, u16 color){
 	
 	if( ch == '\n' ){
 
@@ -77,10 +70,14 @@ void m_putc(char ch, u16 color){
 
 	}
 
-	if(cur_x >= 40){
+	if( !full_screen && cur_x >= 40){
 		cur_y++;
 		cur_x = 0;
-	}
+	}else if(full_screen && cur_x >= 80){
+
+		cur_y++;
+		cur_x = 0;
+    }
 
 	move_cursor();
 	scroll();
@@ -88,7 +85,7 @@ void m_putc(char ch, u16 color){
 
 }
 
-void m_write(char* str, u16 color){
+static void m_write(char* str, u16 color){
 
 	while( *str ){
 
@@ -99,12 +96,12 @@ void m_write(char* str, u16 color){
 
 }
 
-void m_putint( u32 num ){
+static void m_putint( u32 num ){
     char buf[11];
     itoia(buf, 11, num);
     m_write( buf, SUC );
 }
-void m_puthex( u32 num ){
+static void m_puthex( u32 num ){
 
 	char buf[11];
 	itoha( buf, 11, num );
@@ -127,6 +124,16 @@ void m_printf(const char* format,...){
             }else if(*format == 'd'){
                 m_putint(*(u32*)addr);
                 addr+=sizeof(int);
+                format++;
+                continue;
+            }else if(*format == 'c'){
+                m_putc(*(u8*)addr,INFO);
+                addr+=sizeof(char);
+                format++;
+                continue;
+            }else if(*format == 's'){
+                m_write(*(char**)addr,INFO);
+                addr+=sizeof(char*);
                 format++;
                 continue;
             }

@@ -18,16 +18,14 @@ void iniTask(){
 
     memset( (u8*)ready, 0, sizeof(Task)*MAX_TASK );
     addTask( (u32)&ini_begin, (u32)&ini_end );
-    addTask( (u32)&test_begin, (u32)&test_end );
+    //addTask( (u32)&test_begin, (u32)&test_end );
     run = -1;
     showTask();
-    m_write("ini task kernel over\n", SUC);
 }
 
 void switchTask(registers_t* regs){
 
     int i;
-    //m_write("switch task\n",INFO);
     
     //unmap the task
     if(run!=-1 && ready[run].status == 2){
@@ -43,7 +41,6 @@ void switchTask(registers_t* regs){
         now->status = 1;
     }
 
-    //m_write("unmap done\n",INFO);
     
     //pick up which to run
     //TODO schedual should be a interface
@@ -54,20 +51,10 @@ void switchTask(registers_t* regs){
         i!=run ;
         i = i==MAX_TASK-1 ? 0 : i+1
     ){
-        //m_write("check:",INFO);
-        //m_putint(i);
-        //m_write(" status:",INFO);
-        //m_putint(ready[i].status);
-        //m_write("\n",INFO);
-        //ibreak();
         if( ready[i].status==1 )
             break;
     }
 
-    //m_write("pick:",INFO);
-    //m_putint(i);
-    //m_write("\n",INFO);
-    //m_write("pick up done\n",INFO);
 
     run = i;
     Task* next = &ready[i];
@@ -81,16 +68,10 @@ void switchTask(registers_t* regs){
     regs->useresp = next->esp;
     regs->eip = next->eip;
     
-    //m_write("kernel stack:",INFO);
-    //m_putint(next->k_esp);
-    //m_write("\n",INFO);
 
     set_kernel_stack(next->k_esp);
     next->status = 2;
     
-
-    //m_write("change regs done\n",INFO);
-
 }
 
 static void showTask(){
@@ -98,34 +79,18 @@ static void showTask(){
     for (i = 0; i < MAX_TASK; i++) {
         Task* t = &ready[i];
         if(t->status){
-            m_write("id:", INFO);
-            m_putint(i);
-            m_write(" eip:", INFO);
-            m_putint(t->eip);
-            m_write(" esp:", INFO);
-            m_putint(t->esp);
-            m_write("\n", INFO);
+            m_printf("id:%d  eip:%x  esp:%x\n",i,t->eip,t->esp);
             int j;
             for (j = 0; j < t->mlen; j++) {
-                
-                m_write("\tvaddr:", INFO);
-                m_putint(t->mmap[j].vaddr);
-                m_write(" paddr:", INFO);
-                m_putint(t->mmap[j].paddr);
-                m_write(" rw:", INFO);
-                m_putint(t->mmap[j].rw);
-                m_write("\n", INFO);
+                m_printf("\tvaddr:%x  paddr:%x  rw:%x\n",
+                    t->mmap[j].vaddr ,t->mmap[j].paddr ,t->mmap[j].rw);
             }
         }
     }
 }
 int addTask(u32 begin,u32 end){
-    
-    m_write("add task begin:", INFO);
-    m_putint(begin);
-    m_write(" end:", INFO);
-    m_putint(end);
-    m_write("\n", INFO);
+    m_printf("add task begin:%x  end:%x  ",begin,end);
+
     int t_num;
 
     for(t_num=0;t_num<MAX_TASK;t_num++){
@@ -145,9 +110,8 @@ int addTask(u32 begin,u32 end){
         //to big to map
         return 0;
     }
-    m_write(" insert pos:", INFO);
-    m_putint(t_num);
-    m_write("\n", INFO);
+    m_printf("insert pos:%d\n",t_num);
+
     Task* t = &ready[t_num];
     memset((u8*)t, 0, sizeof(Task));
     u32 load = LOADPLACE;

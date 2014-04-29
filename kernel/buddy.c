@@ -172,26 +172,13 @@ void inibuddy(multiboot_head_t *mboot_ptr){
  
 }
 void listmem(){
-    m_write("========list mem======\n",INFO);
-    m_write("id           begin        pre          next         avai         size\n",INFO);
-
+    m_printf("###list mem\n");
     u32 t_head = 0;
     //search
     while( t_head != NULL_PAGE && mem[t_head].ini != 0 ){
         chunk ch = mem[t_head];
-        m_putint(t_head);
-        m_write("   ",INFO);
-        m_putint(ch.begin);
-        m_write("   ",INFO);
-        m_putint(ch.pre);
-        m_write("   ",INFO);
-        m_putint(ch.next);
-        m_write("   ",INFO);
-        m_putint(ch.avai);
-        m_write("   ",INFO);
-        m_putint(ch.size);
-        m_write("\n",INFO);
-
+        m_printf("id:%d  begin:%x  pre:%d  next:%d  avai:%d  size:%x\n",
+            t_head ,ch.begin ,ch.pre ,ch.next ,ch.avai ,ch.size);
         t_head = ch.next;
         
     }

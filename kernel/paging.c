@@ -23,33 +23,21 @@ void page_fault(registers_t* regs)
     int id = regs->err_code & 0x10;          // Caused by an instruction fetch?
 
     // Output an error message.
-    m_write("Page fault! ( ",INFO);
-    if (present) {m_write("present ",FAIL);}
-    if (rw) {m_write("read-only ",FAIL);}
-    if (us) {m_write("user-mode ",FAIL);}
-    if (reserved) {m_write("reserved ",FAIL);}
-    m_write(") at ",INFO);
-    m_putint(faulting_address);
-    m_write(" - EIP: ",INFO);
-    m_putint(regs->eip);
-    m_write("\n",INFO);
+    m_printf("Page fault! ( ");
+    if (present) {m_printf("present ");}
+    if (rw) {m_printf("read-only ");}
+    if (us) {m_printf("user-mode ");}
+    if (reserved) {m_printf("reserved ");}
+    m_printf(") at %x - EIP: %x\n",faulting_address,regs->eip);
 
 }
 
 void ini_kernel_page( u32 vd, u32 pd, page_directory* dir){
     
-    //m_write("ini kernel page. map :",INFO);
-    //m_putint(vd);
-    //m_write("\n",INFO);
 
     u32 dir_index  = vd >> 22;
     u32 table_index  = ( vd & 0x3FFFFF ) >> 12;
-    //m_write("ini kernel page.(map:",INFO);
-    //m_putint(vd);
-    //m_write(" dir_index:",INFO);
-    //m_putint(dir_index);
-    //m_write(" table_index:",INFO);
-    //m_putint(table_index);
+
     p_dir_entry* dir_entry = &dir->tables[dir_index];
 
     if ( * (u32*)dir_entry == 0 ){
@@ -63,21 +51,10 @@ void ini_kernel_page( u32 vd, u32 pd, page_directory* dir){
         dir_entry->frame = ((u32)addr) >> 12;
         memset((u8*)addr, 0, 0x1000 );
 
-        m_write("malloc frame:",INFO);
-        m_putint((u32)addr);
-        m_write("\n",INFO);
-        m_write("frame:",INFO);
-        m_putint(dir_entry->frame);
-        m_write("\n",INFO);
-
     }
     page_table* table = (page_table*) ( (u32)dir_entry->frame << 12 );
-    //m_write(" table_addr:",INFO);
-    //m_putint((u32)table);
+
     p_table_entry* page = &table->pages[table_index];
-    //m_write(" page_addr:",INFO);
-    //m_putint((u32)page);
-    //m_write(")\n",INFO);
 
     page->frame = (u32)pd >>12 ;
     page->present=1;
@@ -108,21 +85,7 @@ void ini_paging(){
     k_dir->tables[1023].rw=1;
     k_dir->tables[1023].user=0;
 
-
-
-    m_write("ini pages:",INFO);
-    m_putint(begin / 0x1000);
-    m_write("\n",INFO);
-
-
     register_interrupt_handler(14, page_fault);
-
-    m_write("kdir:",INFO);
-    m_putint((u32)&k_dir_addr);
-
-    m_write("  end:",INFO);
-    m_putint((u32)&kernel_end);
-    m_write("\n",INFO);
 
     listmem();
     flush_page();

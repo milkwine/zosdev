@@ -76,7 +76,7 @@ static void ini_idt(){
     out_byte(0xA1, 0x01);
 
     //mask open all interrupt request
-    out_byte(0x21, 0xFE);
+    out_byte(0x21, 0x0);
     out_byte(0xA1, 0xFF);
 
     memset( (u8*)idt_entries, 0, sizeof(IDT)*256 );

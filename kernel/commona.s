@@ -3,6 +3,8 @@
 global out_byte
 global in_byte
 global ibreak
+global enable_int
+global disable_int
 ;----------------------------------
 ;void out_byte(u16 port,u8 byte)
 ;cdcel ;push 'byte' first
@@ -25,6 +27,20 @@ in_byte:
 	nop
 	nop
 	ret
+
+;----------------------------------
+;void enable_int()
+;----------------------------------
+enable_int:
+    sti
+    ret
+ 
+;----------------------------------
+;void disable_int()
+;----------------------------------
+disable_int:
+    cli
+    ret
 
 ;----------------------------------
 ;void ibreak()

@@ -11,8 +11,6 @@
 
 
 void m_clear();
-void m_write( char*, u16 );
-void m_putint( u32 num );
+void m_split();
 void m_printf(const char* format,...);
-
 #endif

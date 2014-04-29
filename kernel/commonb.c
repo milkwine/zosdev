@@ -33,8 +33,14 @@ void itoha(char* buf,int buf_len,int num){
   buf[i++]='x';
   while(j>=0){
     int d=(num>>(4*j))& 0x0000000F;
-    if(d==0);
-    else if(d<10){
+    if(d!=0)
+      break;
+    j--;
+  }
+  if(j<0)buf[i++]=0|0x30;
+  while(j>=0){
+    int d=(num>>(4*j))& 0x0000000F;
+    if(d<10){
       buf[i++]=d|0x30;
     }else{
       buf[i++]=(d-9)|0x40;
