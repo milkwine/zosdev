@@ -21,13 +21,24 @@ void kernel_main(multiboot_head_t *mboot_ptr){
     m_clear();
     
     //show_mem(mboot_ptr);
+
     inibuddy(mboot_ptr);
-    //listmem();
     ini_paging();
+
     ini_keybord();
+    m_split();
+    m_clear_up();
+    m_clear_down();
+    m_draw_up(0,0);
+    m_draw_up(39,0);
+    m_draw_up(39,11);
+    m_draw_up(0,11);
+    m_draw_down(0,0);
+    m_draw_down(39,0);
+    m_draw_down(39,11);
+    m_draw_down(0,11);
     iniTask();
     ini_timer(1000);    
-    //m_split();
     //ibreak();
     asm volatile("sti");
 

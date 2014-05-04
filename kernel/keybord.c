@@ -147,7 +147,7 @@ static void push(char ch){
     if(p==p_out)return;
     keybuf[p_in] = ch; 
     p_in = p;
-    m_printf("%c",ch);
+    //m_printf("%c",ch);
 }
 static char get(){
     if(p_out == p_in)return 0;
@@ -215,7 +215,12 @@ static void keybord_callback(registers_t* regs){
 }
 void keybord_read(u8* buf, int len){
     disable_int(); 
-    enable_int();
+
+    char ch=0;
+    int i=0;
+    while((ch=get())!=0 && i<len){
+        buf[i++] = ch;
+    }
 }
 void ini_keybord(){
    register_interrupt_handler(IRQ1, &keybord_callback);

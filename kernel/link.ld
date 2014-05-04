@@ -53,6 +53,8 @@ SECTIONS
 	.ini BLOCK(4K) :
     {
         *(.ini)
+		ini.o(.rodata)
+
     }
     ini_end = .;
     test_begin = ALIGN(4K);
