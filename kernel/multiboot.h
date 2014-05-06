@@ -55,5 +55,17 @@ typedef struct memory_map
   u32 length_high;
   u32 type;
 }  __attribute__((packed)) memory_map_t;
+     
+typedef struct multiboot_mod_list
+{
+  /* the memory used goes from bytes 'mod_start' to 'mod_end-1' inclusive */
+  u32 mod_start;
+  u32 mod_end;
 
+  /* Module command line */
+  u32 cmdline;
+
+  /* padding to take it to 16 bytes (must be zero) */
+  u32 pad;
+}multiboot_module_t;
 #endif

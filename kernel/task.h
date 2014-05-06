@@ -23,7 +23,7 @@ typedef struct _Task {
     u32 mlen;
     Mmap mmap[TASK_MAX_PAGE];
 } Task;
-void iniTask();
+void ini_task();
 int addTask(u32 begin,u32 end);
 void switchTask(registers_t* regs);
 void killTask(int pid);

@@ -13,6 +13,7 @@
 void m_clear();
 void m_delete();
 void m_split();
+void m_putchar(char ch);
 void m_printf(const char* format,...);
 //x:0~39,y:0~11
 void m_draw_up(int x,int y);

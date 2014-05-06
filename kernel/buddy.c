@@ -146,7 +146,7 @@ int k_free(u32 begin){
 }
 
 extern u32 mem_start;
-void inibuddy(multiboot_head_t *mboot_ptr){
+void ini_buddy(multiboot_head_t *mboot_ptr){
 
     memset((u8*)mem, 0, sizeof(chunk)*MAX_PAGE);
     mem[0].pre = NULL_PAGE;

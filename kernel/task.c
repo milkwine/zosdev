@@ -14,7 +14,7 @@ static void showTask();
 Task ready[MAX_TASK];
 int run;
 
-void iniTask(){
+void ini_task(){
 
     memset( (u8*)ready, 0, sizeof(Task)*MAX_TASK );
     addTask( (u32)&ini_begin, (u32)&ini_end );

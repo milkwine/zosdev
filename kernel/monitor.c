@@ -5,6 +5,7 @@ u16* video = (u16*) 0xB8000;
 u8 cur_x = 0;
 u8 cur_y = 0;
 u8 full_screen = 1;
+
 void m_split(){
     full_screen = 0;
 }
@@ -129,6 +130,9 @@ static void m_putc(char ch, u16 color){
 
 }
 
+void m_putchar(char ch){
+    m_putc(ch,INFO);
+}
 static void m_write(char* str, u16 color){
 
 	while( *str ){

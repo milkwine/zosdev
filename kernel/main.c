@@ -9,6 +9,7 @@
 #include "task.h"
 #include "keybord.h"
 #include "syscall.h"
+#include "initrd.h"
 
 
 void show_mem(multiboot_head_t *mboot_ptr);
@@ -20,9 +21,15 @@ void kernel_main(multiboot_head_t *mboot_ptr){
     ini_syscall();
     m_clear();
     
-    //show_mem(mboot_ptr);
+    ini_initrd(mboot_ptr);
+    show_mem(mboot_ptr);
+    ini_buddy(mboot_ptr);
+    listmem();
 
-    inibuddy(mboot_ptr);
+    ls_initrd();
+    cat_initrd(12);
+
+    ibreak();
     ini_paging();
 
     ini_keybord();
@@ -37,7 +44,7 @@ void kernel_main(multiboot_head_t *mboot_ptr){
     m_draw_down(39,0);
     m_draw_down(39,11);
     m_draw_down(0,11);
-    iniTask();
+    ini_task();
     ini_timer(1000);    
     //ibreak();
     asm volatile("sti");

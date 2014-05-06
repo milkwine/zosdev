@@ -27,5 +27,5 @@ typedef struct _chunk {
 
 int k_malloc( u32 f_size );
 int k_free(u32 begin);
-void inibuddy(multiboot_head_t *mboot_ptr);
+void ini_buddy(multiboot_head_t *mboot_ptr);
 void listmem();
