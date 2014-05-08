@@ -1,5 +1,6 @@
 #include "initrd.h"
 #include "common.h"
+#include "buddy.h"
 
 #define block2addr(b) (b * s_block + i_start)
 static u32 i_start;
@@ -26,6 +27,36 @@ static inode_t* find_inode(int inode){
     }
     return inodes;
 
+}
+u32 load_initrd(int inode,int* p_size){
+    
+    inode_t* inodes = find_inode(inode);
+    if((u32)inodes == 0)return 0;
+    u16 mode = inodes->i_mode;
+    if(!(mode & EXT2_S_IFREG)){
+        m_printf("inode %d is not a regular file\n",inode);
+        return 0;
+    }
+    *p_size = inodes->i_size;
+    int c_page = inodes->i_size / PAGE_SIZE;
+    c_page = inodes->i_size % PAGE_SIZE ? c_page+1 : c_page;
+    int base = k_malloc(c_page);
+    if(base == -1){
+        m_printf("do not have enoght memory\n");
+        return 0;
+    }
+
+    char* buf = (char*)base;
+    //only deal with 12 direct blocks;Singly&Doubly&Triply do not support
+    int i; u32 size = 0; char* ch = 0;
+    for (i = 0; i < 12 && size < inodes->i_size;) {
+        if(ch==0 || size % s_block == 0){
+            ch = (char*)block2addr( inodes->i_block[i] );
+            i++;
+        }
+        buf[size++] = *ch++;
+    }
+    return (u32)base;
 }
 static void print_inode(int inode){
 
@@ -87,7 +118,6 @@ int read_initrd(int inode, u8* buf, int len, u32 pos){
             ch = (char*)block2addr( inodes->i_block[i] );
             i++;
         }
-        m_putchar(*ch++);
         buf[size++] = *ch++;
         pos++;
     }
@@ -114,8 +144,9 @@ void ls_initrd(){
         char* name = (char*)&dir->name;
         name[dir->name_len]='\0';
         if( dir->file_type == 1 || dir->file_type == 2){    //regular file & directory file
+
             print_inode( dir->inode );
-            m_printf("%s\n",name);
+            m_printf("(%d)%s\n",dir->inode,name);
             c++;
         }
         addr+=dir->rec_len;

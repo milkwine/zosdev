@@ -3,8 +3,8 @@
 #include "monitor.h"
 #include "buddy.h"
 
-extern u32 k_dir_addr;
-extern u32 kernel_end;
+extern u32 k_dir_addr;  //in boot.s
+extern u32 kernel_end;  //in link.ld
 
 static void flush_page();
 

@@ -1,9 +1,9 @@
-SOURCE=boot.o main.o commona.o commonb.o monitor.o descriptor.o gdt.o interrupt.o isr.o timer.o paging.o buddy.o ini.o syscall.o task.o keybord.o api.o initrd.o
+SOURCE=boot.o main.o commona.o commonb.o monitor.o descriptor.o gdt.o interrupt.o isr.o timer.o paging.o buddy.o syscall.o task.o keybord.o initrd.o
 ASFLAGS=-f elf
 CC=i586-elf-gcc
 CFLAGS=-ffreestanding
 #CFLAGS=-ffreestanding -O2 -Wall -Wextra
-LDFLAGS=-T link.ld -nostdlib
+LDFLAGS=-T link.ld -nostdlib -s
 all: $(SOURCE) link
 clean:
 	rm *.o kernel

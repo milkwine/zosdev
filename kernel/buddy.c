@@ -4,7 +4,7 @@
 #include "monitor.h"
 
 //mem[0] always be head
-chunk mem[MAX_PAGE];
+static chunk mem[MAX_PAGE];
 int avi_size[] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}; //11
 
 static u32 findpos();

@@ -1,10 +1,10 @@
 #include "monitor.h"
 #include "common.h"
 
-u16* video = (u16*) 0xB8000;
-u8 cur_x = 0;
-u8 cur_y = 0;
-u8 full_screen = 1;
+static u16* video = (u16*) 0xB8000;
+static u8 cur_x = 0;
+static u8 cur_y = 0;
+static u8 full_screen = 1;
 
 void m_split(){
     full_screen = 0;

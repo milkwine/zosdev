@@ -1,11 +1,12 @@
-#include "syscall.h"
-static void __attribute__((section(".ini"))) ini();
-static int __attribute__((section(".ini"))) cmd(char* buf,int len);
-static int __attribute__((section(".ini"))) strequal(char* stra,char* strb);
-static void __attribute__((section(".ini"))) ini(){
+#include "api.h"
+static void  ini();
+static int cmd(char* buf,int len);
+static int strequal(char* stra,char* strb);
+static void ini(){
     clear();
     char c_info[]="info";
     char c_clear[]="clear";
+    char c_ls[]="ls";
     while(1){
         char cmd_buf[50]={0};
         puts("$>");
@@ -14,13 +15,15 @@ static void __attribute__((section(".ini"))) ini(){
                 puts("os developed by MilkWine(2014).\n");
             }else if(strequal(cmd_buf,c_clear)){
                 clear();
+            }else if(strequal(cmd_buf,c_ls)){
+                ls();
             }else{
                 puts("command not found!\n");
             }
         }
     }
 }
-static int __attribute__((section(".ini"))) strequal(char* stra,char* strb){
+static int strequal(char* stra,char* strb){
     int i;
     for (i = 0; stra[i] && strb[i] ; i++) {
         if(stra[i]!=strb[i])return 0;
@@ -28,11 +31,20 @@ static int __attribute__((section(".ini"))) strequal(char* stra,char* strb){
     if(stra[i]!=strb[i])return 0;
     return 1;
 }
-static int __attribute__((section(".ini"))) cmd(char* buf,int len){
+static int cmd(char* buf,int len){
     int count=0;
     while(1){
-        char key_buf[9] = {0};
         int i=0;
+        char key_buf[9];
+        key_buf[0] = 0;
+        key_buf[1] = 0;
+        key_buf[2] = 0;
+        key_buf[3] = 0;
+        key_buf[4] = 0;
+        key_buf[5] = 0;
+        key_buf[6] = 0;
+        key_buf[7] = 0;
+        key_buf[8] = 0;
         gets(key_buf,8);
         for (i = 0; key_buf[i]; i++) {
 

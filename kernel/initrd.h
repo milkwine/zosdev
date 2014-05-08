@@ -5,6 +5,7 @@
 void ini_initrd(multiboot_head_t *mboot_ptr);
 void ls_initrd();
 int read_initrd(int inode, u8* buf, int len, u32 pos);
+u32 load_initrd(int inode,int* p_size);
 void cat_initrd(int inode);
 
 typedef struct ext2_superblock_t {

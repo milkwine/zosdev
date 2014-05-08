@@ -3,36 +3,76 @@
 #include "buddy.h"
 #include "monitor.h"
 #include "descriptor.h"
+#include "initrd.h"
 
-extern u32 ini_begin;
-extern u32 ini_end;
-
-extern u32 test_begin;
-extern u32 test_end;
 
 static void showTask();
 Task ready[MAX_TASK];
 int run;
 
+int load_task(int inode){
+    int size; 
+    u32 addr = load_initrd(inode, &size);
+    addTask( addr, addr+(u32)size );
+    m_printf("load task addr:%x size:%x\n",addr,size);
+}
 void ini_task(){
 
     memset( (u8*)ready, 0, sizeof(Task)*MAX_TASK );
-    addTask( (u32)&ini_begin, (u32)&ini_end );
+    //addTask( (u32)&ini_begin, (u32)&ini_end );
     //addTask( (u32)&test_begin, (u32)&test_end );
+    load_task(11);
+    load_task(16);
     run = -1;
     showTask();
+    ibreak();
 }
+void save_context(Task* now,registers_t regs){
+    
+    now->eip = regs.eip;
+    now->cs  = regs.cs;
+    now->eflags = regs.eflags;
+    now->esp = regs.useresp;
+    now->ss = regs.ss;
+ 
+    now->ds  = regs.ds;
+    now->edi = regs.edi;
+    now->esi = regs.esi;
+    now->ebp = regs.ebp;
+    now->ebx = regs.ebx;
+    now->edx = regs.edx;
+    now->ecx = regs.ecx;
+    now->eax = regs.eax;
+}
+void restore_context(Task next,registers_t* regs){
 
+    regs->eip = next.eip;
+    regs->cs = next.cs;
+
+    if(next.eflags!=0)
+        regs->eflags = next.eflags;
+
+    regs->useresp = next.esp;
+    regs->ss = next.ss;
+
+    regs->ds  = next.ds;
+    regs->edi = next.edi;
+    regs->esi = next.esi;
+    regs->ebp = next.ebp;
+    regs->ebx = next.ebx;
+    regs->edx = next.edx;
+    regs->ecx = next.ecx;
+    regs->eax = next.eax;
+}
 void switchTask(registers_t* regs){
 
     int i;
     
     //unmap the task
     if(run!=-1 && ready[run].status == 2){
-        Task* now = &ready[run];
 
-        now->eip = regs->eip;
-        now->esp = regs->useresp;
+        Task* now = &ready[run];
+        save_context(now,*regs);
 
         for (i = 0; i < now->mlen; i++) {
             
@@ -57,19 +97,15 @@ void switchTask(registers_t* regs){
 
 
     run = i;
+    //m_printf("pick up %d\n",run);
     Task* next = &ready[i];
     for (i = 0; i < next->mlen; i++) {
         map_page( next->mmap[i].vaddr, next->mmap[i].paddr, next->mmap[i].rw );
     }
 
-    regs->ds = 0x23;
-    regs->ss = 0x23;
-    regs->cs = 0x1B;
-    regs->useresp = next->esp;
-    regs->eip = next->eip;
-    
-
+    restore_context(*next, regs);
     set_kernel_stack(next->k_esp);
+
     next->status = 2;
     
 }
@@ -126,7 +162,7 @@ int addTask(u32 begin,u32 end){
     //malloc stack
     u32 stack = k_malloc(1);
     if(stack == -1){
-        //panic
+        //TODO panic
     }
     
     //map stack
@@ -137,7 +173,7 @@ int addTask(u32 begin,u32 end){
     //malloc kernel stack used when trap into ring0
     u32 k_stack = k_malloc(1);
     if(k_stack == -1){
-        //panic
+        //TODO panic
     }
     
     //map kernel_stack
@@ -146,6 +182,10 @@ int addTask(u32 begin,u32 end){
     t->mmap[ t->mlen++ ].paddr = k_stack;
 
     t->eip = LOADPLACE;
+    t->cs = 0x1B;
+    //t->eflags ?
+    t->ss = 0x23;
+    t->ds = 0x23;
     t->esp = LOADSTACK + 0x1000;    //top of the stack(page)
     t->k_esp = KERNELSTACK + 0x1000;
     t->status = 1;

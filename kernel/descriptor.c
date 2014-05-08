@@ -1,13 +1,13 @@
 #include "common.h"
 #include "descriptor.h"
 
-GDT gdt_entries[6];
-GDT_PTR gdt_ptr;
+static GDT gdt_entries[6];
+static GDT_PTR gdt_ptr;
 
-IDT idt_entries[256];
-IDT_PTR idt_ptr;
+static IDT idt_entries[256];
+static IDT_PTR idt_ptr;
 
-TSS tss;
+static TSS tss;
 
 static void ini_gdt();
 static void ini_idt();

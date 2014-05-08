@@ -99,7 +99,7 @@ irq0:
     push 0
     push 32
 
-    pusha
+    pusha       ;edi, esi, ebp, esp(original), ebx, edx, ecx, eax
     mov ax, ds
     push eax
 
@@ -132,7 +132,7 @@ irq0:
 
     popa
     add esp, 8
-
+    sti
     xchg bx,bx
     iret
 
@@ -198,7 +198,7 @@ irq_common_stub:
 extern syscall_handler
 global int_syscall
 int_syscall:
-
+    ;cli
     push 0x80
     push eax
 

@@ -1,0 +1,6 @@
+timeout 1
+
+title	Experimental Os (by MilkWine)
+	root (hd0,0)
+	kernel /kernel
+	module /initrd
